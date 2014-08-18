@@ -429,7 +429,7 @@ obj-$(CONFIG_MACH_RUBY) += board-ruby-mmc.o board-ruby-wifi.o
 obj-$(CONFIG_MACH_RUBY) += htc_wifi_nvs.o
 
 # MSM7x30 boards
-obj-$(CONFIG_ARCH_MSM7X30) += htc_wifi_nvs.o board-msm7x30-wifi.o
+obj-$(CONFIG_ARCH_MSM7X30) += htc_wifi_nvs.o
 obj-$(CONFIG_MACH_RUNNYMEDE) += board-runnymede.o
 obj-$(CONFIG_MACH_RUNNYMEDE)+= board-runnymede-keypad.o
 obj-$(CONFIG_MACH_RUNNYMEDE) += display/runnymede-panel.o board-runnymede-audio.o
@@ -485,7 +485,7 @@ obj-$(CONFIG_MACH_MECHA)+= board-mecha-mmc.o board-mecha-wifi.o
 obj-$(CONFIG_MACH_MECHA) += display/mecha-panel.o board-mecha-audio.o
 obj-$(CONFIG_MACH_MECHA) += htc_sleep_clk.o htc_fast_clk_7k.o
 obj-$(CONFIG_MACH_MECHA) += htc_bdaddress.o board-mecha-rfkill.o
-obj-$(CONFIG_MACH_PRIMOU) += board-primou.o
+obj-$(CONFIG_MACH_PRIMOU) += board-primou.o board-primou-wifi.o
 obj-$(CONFIG_MACH_PRIMOU) += display/primou-panel.o board-primou-audio.o
 obj-$(CONFIG_MACH_PRIMOU) += board-primou-keypad.o
 obj-$(CONFIG_MACH_PRIMOU)+= board-primou-mmc.o

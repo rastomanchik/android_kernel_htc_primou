@@ -4068,7 +4068,7 @@ static void __init primou_init(void)
 	primou_te_gpio_config();
 #endif
 	primou_init_panel();
-	msm7x30_wifi_init();
+	primou_wifi_init();
 }
 
 static unsigned pmem_sf_size = MSM_PMEM_SF_SIZE;
