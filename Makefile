@@ -374,7 +374,7 @@ KBUILD_CPPFLAGS := -D__KERNEL__
 
 KBUILD_CFLAGS   := -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
-		   -Wno-format-security -Wno-aggressive-loop-optimizations \
+		   -Wno-format-security \
 		   -fno-delete-null-pointer-checks -mno-unaligned-access \
                    -marm -mcpu=cortex-a8 -mtune=cortex-a8 -mfpu=neon \
                    -fsingle-precision-constant -fpredictive-commoning -fipa-cp-clone \

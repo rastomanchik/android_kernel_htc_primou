@@ -147,7 +147,7 @@ struct pmem_info {
         unsigned long num_entries;
         /* pfn of the garbage page in memory */
         unsigned long garbage_pfn;
-        /* which memory type (i.e. SMI, EBI0) this PMEM device is backed by */
+        /* which memory type (i.e. SMI, EBI1) this PMEM device is backed by */
         unsigned memory_type;
 
         char name[PMEM_NAME_SIZE];

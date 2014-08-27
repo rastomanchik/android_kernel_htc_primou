@@ -336,18 +336,10 @@ void __init msm_reserve(void)
 	initialize_mempools();
 }
 
-static int get_ebi_memtype(void)
-{
-	/* on 7x30 and 8x55 "EBI1 kernel PMEM" is really on EBI0 */
-	if (cpu_is_msm7x30() || cpu_is_msm8x55())
-		return MEMTYPE_EBI0;
-	return MEMTYPE_EBI1;
-}
-
 void *allocate_contiguous_ebi(unsigned long size,
 	unsigned long align, int cached)
 {
-	return allocate_contiguous_memory(size, get_ebi_memtype(),
+	return allocate_contiguous_memory(size, MEMTYPE_EBI0,
 		align, cached);
 }
 EXPORT_SYMBOL(allocate_contiguous_ebi);
@@ -355,7 +347,7 @@ EXPORT_SYMBOL(allocate_contiguous_ebi);
 unsigned long allocate_contiguous_ebi_nomap(unsigned long size,
 	unsigned long align)
 {
-	return _allocate_contiguous_memory_nomap(size, get_ebi_memtype(),
+	return _allocate_contiguous_memory_nomap(size, MEMTYPE_EBI0,
 		align, __builtin_return_address(0));
 }
 EXPORT_SYMBOL(allocate_contiguous_ebi_nomap);
@@ -365,7 +357,6 @@ int32_t pmem_kalloc(const size_t size, const uint32_t flags)
 {
 	int pmem_memtype;
 	int memtype = MEMTYPE_NONE;
-	int ebi1_memtype = MEMTYPE_EBI1;
 	unsigned int align;
 	int32_t paddr;
 
@@ -382,13 +373,9 @@ int32_t pmem_kalloc(const size_t size, const uint32_t flags)
 		return -EINVAL;
 	}
 
-	/* on 7x30 and 8x55 "EBI1 kernel PMEM" is really on EBI0 */
-	if (cpu_is_msm7x30() || cpu_is_msm8x55())
-			ebi1_memtype = MEMTYPE_EBI0;
-
 	pmem_memtype = flags & PMEM_MEMTYPE_MASK;
-	if (pmem_memtype == PMEM_MEMTYPE_EBI1)
-		memtype = ebi1_memtype;
+	if (pmem_memtype == PMEM_MEMTYPE_EBI0)
+		memtype = MEMTYPE_EBI0;
 	else if (pmem_memtype == PMEM_MEMTYPE_SMI)
 		memtype = MEMTYPE_SMI_KERNEL;
 	else {
@@ -402,7 +389,7 @@ int32_t pmem_kalloc(const size_t size, const uint32_t flags)
 
 	if (!paddr && pmem_memtype == PMEM_MEMTYPE_SMI)
 		paddr = _allocate_contiguous_memory_nomap(size,
-			ebi1_memtype, align, __builtin_return_address(0));
+			MEMTYPE_EBI0, align, __builtin_return_address(0));
 
 	if (!paddr)
 		return -ENOMEM;

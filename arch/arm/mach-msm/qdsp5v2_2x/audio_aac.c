@@ -33,7 +33,7 @@
 #include <asm/ioctls.h>
 #include <linux/slab.h>
 #include <mach/msm_adsp.h>
-#include <mach/qdsp5v2_2x/msm_audio_aac.h>
+#include <linux/msm_audio_aac.h>
 #include <mach/qdsp5v2_2x/qdsp5audppmsg.h>
 #include <mach/qdsp5v2_2x/qdsp5audplaycmdi.h>
 #include <mach/qdsp5v2_2x/qdsp5audplaymsg.h>
@@ -1810,7 +1810,7 @@ static int audio_open(struct inode *inode, struct file *file)
 
 	while (pmem_sz >= DMASZ_MIN) {
 		MM_DBG("pmemsz = %d \n", pmem_sz);
-		audio->phys = pmem_kalloc(pmem_sz, PMEM_MEMTYPE_EBI1|
+		audio->phys = pmem_kalloc(pmem_sz, PMEM_MEMTYPE_EBI0|
 						PMEM_ALIGNMENT_4K);
 		if (!IS_ERR((void *)audio->phys)) {
 			audio->data = ioremap(audio->phys, pmem_sz);
@@ -1840,7 +1840,7 @@ static int audio_open(struct inode *inode, struct file *file)
 	audio->out_dma_sz = pmem_sz;
 
 	audio->read_phys = pmem_kalloc(PCM_BUFSZ_MIN * PCM_BUF_MAX_COUNT,
-				PMEM_MEMTYPE_EBI1|PMEM_ALIGNMENT_4K);
+				PMEM_MEMTYPE_EBI0|PMEM_ALIGNMENT_4K);
 	if (IS_ERR((void *)audio->read_phys)) {
 		pr_aud_err("could not allocate read buffers, freeing instance \
 				0x%08x\n", (int)audio);
