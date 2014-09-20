@@ -1836,10 +1836,12 @@ static struct marimba_fm_platform_data marimba_fm_pdata = {
 #define BAHAMA_SLAVE_ID_QMEMBIST_ADDR   0x7B
 
 static const char *tsadc_id = "MADC";
+
 static const char *vregs_tsadc_name[] = {
 	"gp12",
 	"s2",
 };
+
 static struct vreg *vregs_tsadc[ARRAY_SIZE(vregs_tsadc_name)];
 
 static const char *vregs_timpani_tsadc_name[] = {
@@ -2008,13 +2010,11 @@ static int marimba_tsadc_exit(void)
 
 	if (tsadc_adie_type == TIMPANI_ID) {
 		for (i = 0; i < ARRAY_SIZE(vregs_timpani_tsadc_name); i++) {
-			if (vregs_tsadc[i])
 				vreg_put(vregs_timpani_tsadc[i]);
 		}
 	} else if (tsadc_adie_type == MARIMBA_ID) {
 		for (i = 0; i < ARRAY_SIZE(vregs_tsadc_name); i++) {
-			if (vregs_tsadc[i])
-				vreg_put(vregs_tsadc[i]);
+				vreg_put(vregs_timpani_tsadc[i]);
 		}
 		rc = pmapp_vreg_level_vote(tsadc_id, PMAPP_VREG_S2, 0);
 		if (rc < 0)
@@ -2446,7 +2446,7 @@ static struct android_usb_platform_data android_usb_pdata = {
 	.products = usb_products,
 	.num_functions = ARRAY_SIZE(usb_functions_all),
 	.functions = usb_functions_all,
-	.fserial_init_string = "tty:modem,tty:autobot,tty:serial,tty:autobot",
+	.fserial_init_string = "tty:modem,tty:autobot,tty:serial",
 	.nluns = 2,
 	.usb_id_pin_gpio = PRIMOU_GPIO_USB_ID1_PIN,
 	.req_reset_during_switch_func = 1,
@@ -2694,36 +2694,10 @@ static struct android_pmem_platform_data android_pmem_adsp_pdata = {
 	.memory_type = MEMTYPE_EBI0,
 };
 
-static struct android_pmem_platform_data android_pmem_adsp2_pdata = {
-	.name = "pmem_adsp2",
-	.allocator_type = PMEM_ALLOCATORTYPE_BITMAP,
-	.cached = 0,
-	.memory_type = MEMTYPE_EBI0,
-};
-
-static struct android_pmem_platform_data android_pmem_audio_pdata = {
-	.name = "pmem_audio",
-	.allocator_type = PMEM_ALLOCATORTYPE_BITMAP,
-	.cached = 0,
-	.memory_type = MEMTYPE_EBI0,
-};
-
 static struct platform_device android_pmem_adsp_device = {
        .name = "android_pmem",
        .id = 2,
        .dev = { .platform_data = &android_pmem_adsp_pdata },
-};
-
-static struct platform_device android_pmem_adsp2_device = {
-	.name = "android_pmem",
-	.id = 3,
-	.dev = { .platform_data = &android_pmem_adsp2_pdata },
-};
-
-static struct platform_device android_pmem_audio_device = {
-       .name = "android_pmem",
-       .id = 4,
-       .dev = { .platform_data = &android_pmem_audio_pdata },
 };
 
 #if defined(CONFIG_CRYPTO_DEV_QCRYPTO) || \
@@ -3213,8 +3187,6 @@ static struct platform_device *devices[] __initdata = {
         &msm_rotator_device,
 #endif
         &android_pmem_adsp_device,
-        &android_pmem_adsp2_device,
-        &android_pmem_audio_device,
         &msm_device_i2c,
         &msm_device_i2c_2,
         &hs_device,
@@ -4095,14 +4067,6 @@ static int __init pmem_adsp_size_setup(char *p)
 }
 early_param("pmem_adsp_size", pmem_adsp_size_setup);
 
-static unsigned pmem_adsp2_size = MSM_PMEM_ADSP2_SIZE;
-static int __init pmem_adsp2_size_setup(char *p)
-{
-	pmem_adsp2_size = memparse(p, NULL);
-	return 0;
-}
-early_param("pmem_adsp2_size", pmem_adsp2_size_setup);
-
 #ifdef CONFIG_ION_MSM
 #ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
 static struct ion_co_heap_pdata co_ion_pdata = {
@@ -4149,14 +4113,6 @@ static struct platform_device ion_dev = {
 };
 #endif
 
-static unsigned pmem_audio_size = MSM_PMEM_AUDIO_SIZE;
-static int __init pmem_audio_size_setup(char *p)
-{
-	pmem_audio_size = memparse(p, NULL);
-	return 0;
-}
-early_param("pmem_audio_size", pmem_audio_size_setup);
-
 static struct memtype_reserve msm7x30_reserve_table[] __initdata = {
 	[MEMTYPE_SMI] = {
 	},
@@ -4171,59 +4127,37 @@ static struct memtype_reserve msm7x30_reserve_table[] __initdata = {
 unsigned long msm_ion_camera_size;
 static void fix_sizes(void)
 {
-#ifdef CONFIG_ION_MSM
 	msm_ion_camera_size = pmem_adsp_size;
-#endif
-}
-
-static void __init size_pmem_devices(void)
-{
-#ifdef CONFIG_ANDROID_PMEM
-	android_pmem_adsp_pdata.size = pmem_adsp_size;
-	android_pmem_adsp2_pdata.size = pmem_adsp2_size;
-	android_pmem_audio_pdata.size = pmem_audio_size;
-#ifndef CONFIG_MSM_MULTIMEDIA_USE_ION
-	android_pmem_pdata.size = pmem_sf_size;
-#endif
-#endif
-}
-
-#ifdef CONFIG_ANDROID_PMEM
-static void __init reserve_memory_for(struct android_pmem_platform_data *p)
-{
-	if (p->size > 0) {
-		pr_info("%s: reserve %lu bytes from memory %d for %s.\n", __func__, p->size, p->memory_type, p->name);
-		msm7x30_reserve_table[p->memory_type].size += p->size;
-	}
-}
-#endif
-
-static void __init reserve_pmem_memory(void)
-{
-#ifdef CONFIG_ANDROID_PMEM
-	reserve_memory_for(&android_pmem_adsp_pdata);
-	reserve_memory_for(&android_pmem_adsp2_pdata);
-	reserve_memory_for(&android_pmem_audio_pdata);
-#ifndef CONFIG_MSM_MULTIMEDIA_USE_ION
-	reserve_memory_for(&android_pmem_pdata);
-#endif
-#endif
 }
 
 static void __init size_ion_devices(void)
 {
-#ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
 	ion_pdata.heaps[1].size = MSM_ION_CAMERA_SIZE;
 	ion_pdata.heaps[2].size = MSM_ION_SF_SIZE;
-#endif
 }
 
 static void __init reserve_ion_memory(void)
 {
-#if defined(CONFIG_ION_MSM) && defined(CONFIG_MSM_MULTIMEDIA_USE_ION)
 	msm7x30_reserve_table[MEMTYPE_EBI0].size += MSM_ION_CAMERA_SIZE;
 	msm7x30_reserve_table[MEMTYPE_EBI0].size += MSM_ION_SF_SIZE;
-#endif
+}
+
+static void __init size_pmem_devices(void)
+{
+	android_pmem_adsp_pdata.size = pmem_adsp_size;
+}
+
+static void __init reserve_memory_for(struct android_pmem_platform_data *p)
+{
+	if (p->size > 0) {
+		msm7x30_reserve_table[p->memory_type].size += p->size;
+	}
+}
+
+static void __init reserve_pmem_memory(void)
+{
+	reserve_memory_for(&android_pmem_adsp_pdata);
+        msm7x30_reserve_table[MEMTYPE_EBI0].size += PMEM_KERNEL_EBI0_SIZE;
 }
 
 static void __init msm7x30_calculate_reserve_sizes(void)
