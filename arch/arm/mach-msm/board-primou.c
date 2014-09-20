@@ -2014,7 +2014,7 @@ static int marimba_tsadc_exit(void)
 		}
 	} else if (tsadc_adie_type == MARIMBA_ID) {
 		for (i = 0; i < ARRAY_SIZE(vregs_tsadc_name); i++) {
-				vreg_put(vregs_timpani_tsadc[i]);
+				vreg_put(vregs_tsadc[i]);
 		}
 		rc = pmapp_vreg_level_vote(tsadc_id, PMAPP_VREG_S2, 0);
 		if (rc < 0)
