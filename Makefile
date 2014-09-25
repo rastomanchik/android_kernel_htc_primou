@@ -1,7 +1,7 @@
 VERSION = 3
 PATCHLEVEL = 0
 SUBLEVEL = 101
-EXTRAVERSION = 
+EXTRAVERSION =
 NAME = Sodden Ben Lomond
 
 # *DOCUMENTATION*
@@ -358,9 +358,9 @@ MODFLAGS  = -DMODULE -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-m
 CFLAGS_MODULE   = $(MODFLAGS)
 AFLAGS_MODULE   = $(MODFLAGS)
 LDFLAGS_MODULE  = -T $(srctree)/scripts/module-common.lds
-CFLAGS_KERNEL   = -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a8 -march=armv7-a -mfpu=neon -mvectorize-with-neon-quad
-AFLAGS_KERNEL   = -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a8 -march=armv7-a -mfpu=neon -mvectorize-with-neon-quad
-CFLAGS_GCOV        = -fprofile-arcs -ftest-coverage
+CFLAGS_KERNEL	= -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a8 -march=armv7-a -mfpu=neon -mvectorize-with-neon-quad
+AFLAGS_KERNEL	= -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a8 -march=armv7-a -mfpu=neon -mvectorize-with-neon-quad
+CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 
 # Use LINUXINCLUDE when you must reference the include/ directory.
@@ -375,11 +375,11 @@ KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_CFLAGS   := -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Wno-format-security \
-		   -fno-delete-null-pointer-checks -mno-unaligned-access \
-                   -marm -mcpu=cortex-a8 -mtune=cortex-a8 -mfpu=neon \
-                   -fsingle-precision-constant -fpredictive-commoning -fipa-cp-clone \
+                   -fno-delete-null-pointer-checks -mno-unaligned-access \
+		   -marm -mcpu=cortex-a8 -mtune=cortex-a8 -mfpu=neon \
+		   -fsingle-precision-constant -fpredictive-commoning -fipa-cp-clone \
                    -fmodulo-sched -fmodulo-sched-allow-regmoves \
-                   -funsafe-math-optimizations -fgcse-after-reload -pipe		   
+		   -funsafe-math-optimizations -fgcse-after-reload -pipe
 
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
@@ -571,10 +571,10 @@ endif # $(dot-config)
 all: vmlinux
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
-KBUILD_CFLAGS        += -Os
+KBUILD_CFLAGS	+= -Os
 endif
 ifdef CONFIG_CC_OPTIMIZE_ALITTLE
-KBUILD_CFLAGS        += -O1
+KBUILD_CFLAGS	+= -O1
 endif
 ifdef CONFIG_CC_OPTIMIZE_DEFAULT
 KBUILD_CLAGS    += -O2
@@ -793,6 +793,9 @@ quiet_cmd_vmlinux_version = GEN     .version
 	if [ ! -r .version ]; then			\
 	  rm -f .version;				\
 	  echo 1 >.version;				\
+	else						\
+	  mv .version .old_version;			\
+	  expr 0$$(cat .old_version) + 1 >.version;	\
 	fi;						\
 	$(MAKE) $(build)=init
 

@@ -934,7 +934,7 @@ u32 vid_enc_set_get_entropy_cfg(struct video_client_ctx *client_ctx,
 	vcd_property_hdr.sz =
 		sizeof(struct vcd_property_entropy_control);
 	if (set_flag) {
-		switch (entropy_cfg->longentropysel) {
+		switch (entropy_cfg->entropysel) {
 		case VEN_ENTROPY_MODEL_CAVLC:
 			control.entropy_sel = VCD_ENTROPY_SEL_CAVLC;
 			break;
@@ -987,11 +987,11 @@ u32 vid_enc_set_get_entropy_cfg(struct video_client_ctx *client_ctx,
 		} else {
 			switch (control.entropy_sel) {
 			case VCD_ENTROPY_SEL_CABAC:
-				entropy_cfg->cabacmodel =
+				entropy_cfg->entropysel =
 					VEN_ENTROPY_MODEL_CABAC;
 				break;
 			case VCD_ENTROPY_SEL_CAVLC:
-				entropy_cfg->cabacmodel =
+				entropy_cfg->entropysel =
 					VEN_ENTROPY_MODEL_CAVLC;
 				break;
 			default:
@@ -1995,4 +1995,28 @@ u32 vid_enc_get_recon_buffer_size(struct video_client_ctx *client_ctx,
 				__func__, vcd_status);
 			return false;
 		}
+}
+
+u32 vid_enc_get_curr_perf_level(struct video_client_ctx *client_ctx,
+		u32 *curr_perf_level)
+{
+	struct vcd_property_hdr vcd_property_hdr;
+	u32 vcd_status = VCD_ERR_FAIL;
+	u32 curr_perf_lvl = 0;
+
+	if (!client_ctx)
+		return false;
+
+	vcd_property_hdr.prop_id = VCD_I_GET_CURR_PERF_LEVEL;
+	vcd_property_hdr.sz = sizeof(u32);
+	vcd_status = vcd_get_property(client_ctx->vcd_handle,
+					&vcd_property_hdr, &curr_perf_lvl);
+	if (vcd_status) {
+		ERR("VCD_I_GET_PERF_LEVEL failed!!");
+		*curr_perf_level = 0;
+		return false;
+	} else {
+		*curr_perf_level = curr_perf_lvl;
+		return true;
+	}
 }

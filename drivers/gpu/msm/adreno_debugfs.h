@@ -13,12 +13,14 @@
 #ifndef __ADRENO_DEBUGFS_H
 #define __ADRENO_DEBUGFS_H
 
+extern unsigned int kgsl_cff_dump_enable;
+extern int adreno_ib_dump_on_pagef_enabled;
+
 #ifdef CONFIG_DEBUG_FS
 
 int adreno_debugfs_init(struct kgsl_device *device);
 
 extern int kgsl_pm_regs_enabled;
-extern int adreno_ib_dump_on_pagef_enabled;
 
 static inline int kgsl_pmregs_enabled(void)
 {
@@ -26,6 +28,7 @@ static inline int kgsl_pmregs_enabled(void)
 }
 
 #else
+
 static inline int adreno_debugfs_init(struct kgsl_device *device)
 {
 	return 0;

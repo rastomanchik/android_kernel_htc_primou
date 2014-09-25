@@ -599,8 +599,8 @@ struct venc_capability{
 };
 
 struct venc_entropycfg{
-	unsigned entropysel;
-	unsigned longentropysel;
+	unsigned 	longentropysel;
+	unsigned long   entropysel;
 	unsigned long	cabacmodel;
 };
 

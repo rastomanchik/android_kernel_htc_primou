@@ -135,9 +135,6 @@ struct pm8xxx_gpio_init_info {
 
 #ifdef CONFIG_ION_MSM
 static struct platform_device ion_dev;
-#define MSM_ION_HEAP_NUM	3
-#define MSM_ION_CAMERA_SIZE	MSM_PMEM_ADSP_SIZE
-#define MSM_ION_SF_SIZE		MSM_PMEM_SF_SIZE
 #endif
 
 int __init primou_init_panel(void);
@@ -4130,23 +4127,27 @@ static void fix_sizes(void)
 	msm_ion_camera_size = pmem_adsp_size;
 }
 
-static void __init size_ion_devices(void)
+static void __init size_pmem_device(struct android_pmem_platform_data *pdata, unsigned long start, unsigned long size)
 {
-	ion_pdata.heaps[1].size = MSM_ION_CAMERA_SIZE;
-	ion_pdata.heaps[2].size = MSM_ION_SF_SIZE;
-}
-
-static void __init reserve_ion_memory(void)
-{
-	msm7x30_reserve_table[MEMTYPE_EBI0].size += MSM_ION_CAMERA_SIZE;
-	msm7x30_reserve_table[MEMTYPE_EBI0].size += MSM_ION_SF_SIZE;
+	pdata->start = start;
+	pdata->size = size;
+	pr_info("%s: allocating %lu bytes at 0x%p (0x%lx physical) for %s\n",
+		__func__, size, __va(start), start, pdata->name);
 }
 
 static void __init size_pmem_devices(void)
 {
-	android_pmem_adsp_pdata.size = pmem_adsp_size;
+        size_pmem_device(&android_pmem_adsp_pdata, 0, pmem_adsp_size);
 }
 
+
+static void __init size_ion_devices(void)
+{
+	ion_pdata.heaps[1].base = 0;
+	ion_pdata.heaps[1].size = MSM_ION_CAMERA_SIZE;
+	ion_pdata.heaps[2].base = 0;
+	ion_pdata.heaps[2].size = MSM_ION_SF_SIZE;
+}
 static void __init reserve_memory_for(struct android_pmem_platform_data *p)
 {
 	if (p->size > 0) {
@@ -4166,7 +4167,6 @@ static void __init msm7x30_calculate_reserve_sizes(void)
 	size_pmem_devices();
 	reserve_pmem_memory();
 	size_ion_devices();
-	reserve_ion_memory();
 }
 
 static int msm7x30_paddr_to_memtype(unsigned int paddr)

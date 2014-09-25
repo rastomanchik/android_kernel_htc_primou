@@ -328,20 +328,6 @@ static void audio_work_func(struct work_struct *work)
 
 void primou_enable_beats(int en)
 {
-#if 0
-	MM_AUD_INFO("%s: %d\n", __func__, en);
-	if (!audio_wq) {
-		MM_AUD_INFO("%s: non-wq case\n", __func__);
-		if (en)
-			adie_codec_set_device_analog_volume(NULL, 2, 0x04);
-		else
-			adie_codec_set_device_analog_volume(NULL, 2, 0x14);
-	} else {
-		MM_AUD_INFO("%s: wq case\n", __func__);
-		atomic_set(&beats_enabled, en);
-		queue_work(audio_wq, &audio_work);
-	}
-#endif
 }
 
 static struct q5v2audio_icodec_ops iops = {
