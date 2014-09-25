@@ -70,11 +70,6 @@
 
 #include "audit.h"
 
-/* flags stating the success for a syscall */
-#define AUDITSC_INVALID 0
-#define AUDITSC_SUCCESS 1
-#define AUDITSC_FAILURE 2
-
 /* AUDIT_NAMES is the number of slots we reserve in the audit_context
  * for saving names from getname(). */
 #define AUDIT_NAMES    20
@@ -1694,16 +1689,11 @@ void audit_finish_fork(struct task_struct *child)
  * message), then write out the syscall information.  In call cases,
  * free the names stored from getname().
  */
-void __audit_syscall_exit(int success, long return_code)
+void audit_syscall_exit(int success, long return_code)
 {
 	struct task_struct *tsk = current;
 	struct audit_context *context;
 
-	if (success)
-		success = AUDITSC_SUCCESS;
-	else
-		success = AUDITSC_FAILURE;
- 
 	context = audit_get_context(tsk, success, return_code);
 
 	if (likely(!context))
