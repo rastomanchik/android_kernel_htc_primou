@@ -600,6 +600,9 @@ void audpp_cb(void *private, u32 id, u16 *msg)
 	if (id != AUDPP_MSG_CFG_MSG)
 		goto done;
 
+	if (acdb_data.device_info == NULL)
+		goto done;
+
 	if (msg[0] == AUDPP_MSG_ENA_DIS) {
 		acdb_data.acdb_state &= ~AUDPP_READY;
 		MM_DBG("acdb state = %d\n", acdb_data.acdb_state);

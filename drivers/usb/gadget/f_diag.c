@@ -878,8 +878,6 @@ int diag_function_add(struct usb_configuration *c, const char *name,
 	return ret;
 }
 
-struct dentry *dent_diag;
-
 #if defined(CONFIG_DEBUG_FS)
 static char debug_buffer[PAGE_SIZE];
 
@@ -939,6 +937,8 @@ static const struct file_operations debug_fdiag_ops = {
 	.read = debug_read_stats,
 	.write = debug_reset_stats,
 };
+
+struct dentry *dent_diag;
 
 static void fdiag_debugfs_init(void)
 {

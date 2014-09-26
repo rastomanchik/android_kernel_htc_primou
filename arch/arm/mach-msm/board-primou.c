@@ -112,7 +112,7 @@
 #endif
 
 #ifdef CONFIG_ION_MSM
-#include <linux/ion.h>
+#include <linux/msm_ion.h>
 #include <mach/ion.h>
 #endif
 

@@ -939,9 +939,7 @@ int gbam_setup(unsigned int count)
 		}
 	}
 
-#if defined(CONFIG_DEBUG_FS)
 	gbam_debugfs_init();
-#endif
 
 	return 0;
 free_bam_ports:

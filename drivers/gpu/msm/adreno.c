@@ -66,10 +66,6 @@
 	 | (MMU_CONFIG << MH_MMU_CONFIG__TC_R_CLNT_BEHAVIOR__SHIFT)	\
 	 | (MMU_CONFIG << MH_MMU_CONFIG__PA_W_CLNT_BEHAVIOR__SHIFT))
 
-#ifndef CONFIG_DEBUG_FS
-unsigned int kgsl_cff_dump_enable;
-#endif
-
 static const struct kgsl_functable adreno_functable;
 
 static struct adreno_device device_3d0 = {
@@ -95,9 +91,6 @@ static struct adreno_device device_3d0 = {
 			.config = ADRENO_MMU_CONFIG,
 		},
 		.pwrctrl = {
-#ifdef CONFIG_KGSL_COMPAT
-			.regulator_name = "fs_gfx3d",
-#endif
 			.irq_name = KGSL_3D0_IRQ,
 		},
 		.mutex = __MUTEX_INITIALIZER(device_3d0.dev.mutex),

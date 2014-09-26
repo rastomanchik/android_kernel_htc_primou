@@ -68,7 +68,7 @@ enum msm_audio_voc_rate {
 		MVS_VOC_8_RATE, /* 1/8 rate    */
 		MVS_VOC_4_RATE, /* 1/4 rate    */
 		MVS_VOC_2_RATE, /* 1/2 rate    */
-		MVS_VOC_1_RATE,	/* Full rate   */
+		MVS_VOC_1_RATE	/* Full rate   */
 		MVS_VOC_ERASURE, /* erasure frame */
 		MVS_VOC_RATE_MAX,
 		MVS_VOC_RATE_UNDEF = MVS_VOC_RATE_MAX
