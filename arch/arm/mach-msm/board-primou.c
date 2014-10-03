@@ -4081,7 +4081,7 @@ static struct ion_platform_data ion_pdata = {
 			.name	= ION_VMALLOC_HEAP_NAME,
 		},
 #ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
-		/* CAMERA */
+
 		{
 			.id	= ION_CAMERA_HEAP_ID,
 			.type	= ION_HEAP_TYPE_CARVEOUT,
@@ -4090,6 +4090,7 @@ static struct ion_platform_data ion_pdata = {
 			.has_outer_cache = 1,
 			.extra_data = (void *)&co_ion_pdata,
 		},
+
 		/* PMEM_MDP = SF */
 		{
 			.id	= ION_SF_HEAP_ID,
