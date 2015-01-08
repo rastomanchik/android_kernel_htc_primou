@@ -936,7 +936,7 @@ asmlinkage int syscall_trace(int why, struct pt_regs *regs, int scno)
 	regs->ARM_ip = why;
 
 	if (!ip)
-		audit_syscall_exit(regs);
+		audit_syscall_exit(1, (int) regs);
 	else
 		audit_syscall_entry(AUDIT_ARCH_ARMEB, scno, regs->ARM_r0,
 				    regs->ARM_r1, regs->ARM_r2, regs->ARM_r3);
