@@ -2385,7 +2385,7 @@ static void synaptics_ts_work_func(struct work_struct *work)
 	int ret;
 	uint8_t buf = 0;
 	ret = i2c_syn_read(ts->client, get_address_base(ts, 0x01, DATA_BASE) + 1, &buf, 1);
-
+	msleep(10);
 	if (ret < 0) {
 		i2c_syn_error_handler(ts, 0, "r", __func__);
 	} else {
