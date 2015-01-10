@@ -26,7 +26,7 @@
 #include <mach/board.h>
 #include <asm/clkdev.h>
 
-#include <linux/ion.h>
+#include <linux/msm_ion.h>
 #include "devices.h"
 #include "gpio_hw.h"
 #include "footswitch.h"
