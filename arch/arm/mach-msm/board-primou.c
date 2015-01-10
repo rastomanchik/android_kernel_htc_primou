@@ -4064,13 +4064,10 @@ static int __init pmem_adsp_size_setup(char *p)
 }
 early_param("pmem_adsp_size", pmem_adsp_size_setup);
 
-#ifdef CONFIG_ION_MSM
-#ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
 static struct ion_co_heap_pdata co_ion_pdata = {
 	.adjacent_mem_id = INVALID_HEAP_ID,
 	.align = PAGE_SIZE,
 };
-#endif
 
 static struct ion_platform_data ion_pdata = {
 	.nr = MSM_ION_HEAP_NUM,
@@ -4080,8 +4077,7 @@ static struct ion_platform_data ion_pdata = {
 			.type	= ION_HEAP_TYPE_SYSTEM,
 			.name	= ION_VMALLOC_HEAP_NAME,
 		},
-#ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
-
+		/* CAMERA */
 		{
 			.id	= ION_CAMERA_HEAP_ID,
 			.type	= ION_HEAP_TYPE_CARVEOUT,
@@ -4090,7 +4086,6 @@ static struct ion_platform_data ion_pdata = {
 			.has_outer_cache = 1,
 			.extra_data = (void *)&co_ion_pdata,
 		},
-
 		/* PMEM_MDP = SF */
 		{
 			.id	= ION_SF_HEAP_ID,
@@ -4100,7 +4095,6 @@ static struct ion_platform_data ion_pdata = {
 			.has_outer_cache = 1,
 			.extra_data = (void *)&co_ion_pdata,
 		},
-#endif
 	}
 };
 
@@ -4141,14 +4135,18 @@ static void __init size_pmem_devices(void)
         size_pmem_device(&android_pmem_adsp_pdata, 0, pmem_adsp_size);
 }
 
-
 static void __init size_ion_devices(void)
 {
-	ion_pdata.heaps[1].base = 0;
 	ion_pdata.heaps[1].size = MSM_ION_CAMERA_SIZE;
-	ion_pdata.heaps[2].base = 0;
 	ion_pdata.heaps[2].size = MSM_ION_SF_SIZE;
 }
+
+static void __init reserve_ion_memory(void)
+{
+	msm7x30_reserve_table[MEMTYPE_EBI0].size += MSM_ION_CAMERA_SIZE;
+	msm7x30_reserve_table[MEMTYPE_EBI0].size += MSM_ION_SF_SIZE;
+}
+
 static void __init reserve_memory_for(struct android_pmem_platform_data *p)
 {
 	if (p->size > 0) {
@@ -4168,6 +4166,7 @@ static void __init msm7x30_calculate_reserve_sizes(void)
 	size_pmem_devices();
 	reserve_pmem_memory();
 	size_ion_devices();
+	reserve_ion_memory();
 }
 
 static int msm7x30_paddr_to_memtype(unsigned int paddr)
