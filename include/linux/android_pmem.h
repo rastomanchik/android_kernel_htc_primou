@@ -51,6 +51,7 @@
  * start of the mapped gpu regs (the vaddr returned by mmap) as the argument.
  */
 #define HW3D_REVOKE_GPU		_IOW(PMEM_IOCTL_MAGIC, 8, unsigned int)
+#define PMEM_CACHE_FLUSH	_IOW(PMEM_IOCTL_MAGIC, 8, unsigned int)
 #define HW3D_GRANT_GPU		_IOW(PMEM_IOCTL_MAGIC, 9, unsigned int)
 #define HW3D_WAIT_FOR_INTERRUPT	_IOW(PMEM_IOCTL_MAGIC, 10, unsigned int)
 
@@ -110,7 +111,7 @@ enum pmem_allocator_type {
 
 #define PMEM_MEMTYPE_MASK 0x7
 #define PMEM_INVALID_MEMTYPE 0x0
-#define PMEM_MEMTYPE_EBI0 0x1
+#define PMEM_MEMTYPE_EBI1 0x1
 #define PMEM_MEMTYPE_SMI  0x2
 #define PMEM_MEMTYPE_RESERVED_INVALID2 0x3
 #define PMEM_MEMTYPE_RESERVED_INVALID3 0x4
@@ -129,7 +130,7 @@ int32_t pmem_kalloc(const size_t size, const uint32_t flags);
 int32_t pmem_kfree(const int32_t physaddr);
 
 /* kernel api names for board specific data structures */
-#define PMEM_KERNEL_EBI0_DATA_NAME "pmem_kernel_ebi0"
+#define PMEM_KERNEL_EBI1_DATA_NAME "pmem_kernel_ebi1"
 #define PMEM_KERNEL_SMI_DATA_NAME "pmem_kernel_smi"
 
 struct android_pmem_platform_data

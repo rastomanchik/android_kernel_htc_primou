@@ -762,7 +762,7 @@ static int audqcelp_in_open(struct inode *inode, struct file *file)
 		rc = -EBUSY;
 		goto done;
 	}
-	audio->phys = pmem_kalloc(DMASZ, PMEM_MEMTYPE_EBI0|
+	audio->phys = pmem_kalloc(DMASZ, PMEM_MEMTYPE_EBI1|
 					PMEM_ALIGNMENT_4K);
 	if (!IS_ERR((void *)audio->phys)) {
 		audio->data = ioremap(audio->phys, DMASZ);

@@ -2340,7 +2340,7 @@ static int audio_open(struct inode *inode, struct file *file)
 		MM_DBG("set to std io interface \n");
 		while (pmem_sz >= DMASZ_MIN) {
 			MM_DBG("pmemsz = %d \n", pmem_sz);
-			audio->phys = pmem_kalloc(pmem_sz, PMEM_MEMTYPE_EBI0|
+			audio->phys = pmem_kalloc(pmem_sz, PMEM_MEMTYPE_EBI1|
 						PMEM_ALIGNMENT_4K);
 			if (!IS_ERR((void *)audio->phys)) {
 				audio->data = ioremap(audio->phys, pmem_sz);
