@@ -279,7 +279,7 @@ kgsl_gem_alloc_memory(struct drm_gem_object *obj)
 
 		if (priv->type == DRM_KGSL_GEM_TYPE_EBI ||
 		    priv->type & DRM_KGSL_GEM_PMEM_EBI)
-			type = PMEM_MEMTYPE_EBI0;
+			type = PMEM_MEMTYPE_EBI1;
 		else
 			type = PMEM_MEMTYPE_SMI;
 

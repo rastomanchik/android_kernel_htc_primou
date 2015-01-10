@@ -1600,7 +1600,7 @@ static long audio_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 				audio->read_phys = pmem_kalloc(
 							config.buffer_size *
 							config.buffer_count,
-							PMEM_MEMTYPE_EBI0|
+							PMEM_MEMTYPE_EBI1|
 							PMEM_ALIGNMENT_4K);
 				if (IS_ERR((void *)audio->read_phys)) {
 					rc = -ENOMEM;
