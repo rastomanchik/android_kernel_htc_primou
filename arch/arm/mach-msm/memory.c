@@ -357,6 +357,7 @@ int32_t pmem_kalloc(const size_t size, const uint32_t flags)
 {
 	int pmem_memtype;
 	int memtype = MEMTYPE_NONE;
+	int ebi1_memtype = MEMTYPE_EBI1;
 	unsigned int align;
 	int32_t paddr;
 
@@ -373,9 +374,12 @@ int32_t pmem_kalloc(const size_t size, const uint32_t flags)
 		return -EINVAL;
 	}
 
+	if (cpu_is_msm7x30() || cpu_is_msm8x55())
+			ebi1_memtype = MEMTYPE_EBI0;
+
 	pmem_memtype = flags & PMEM_MEMTYPE_MASK;
-	if (pmem_memtype == PMEM_MEMTYPE_EBI0)
-		memtype = MEMTYPE_EBI0;
+	if (pmem_memtype == PMEM_MEMTYPE_EBI1)
+		memtype = ebi1_memtype;
 	else if (pmem_memtype == PMEM_MEMTYPE_SMI)
 		memtype = MEMTYPE_SMI_KERNEL;
 	else {
