@@ -86,8 +86,8 @@
 #define VDEC_IOCTL_MAGIC 'v'
 
 struct vdec_ioctl_msg {
-	void *in;
-	void *out;
+	void __user *in;
+	void __user *out;
 };
 
 /* CMD params: InputParam:enum vdec_codec
@@ -216,16 +216,8 @@ struct vdec_ioctl_msg {
 
 #define VDEC_IOCTL_FREE_META_BUFFERS \
 	_IO(VDEC_IOCTL_MAGIC, 39)
-
 #define VDEC_IOCTL_GET_ENABLE_SEC_METADATA \
 	_IOR(VDEC_IOCTL_MAGIC, 40, struct vdec_ioctl_msg)
-
-/*IOCTL params:GET: InputData - NULL, OutputData - unsigned int.*/
-#define VDEC_IOCTL_GET_PERF_LEVEL \
-	_IOR(VDEC_IOCTL_MAGIC, 42, struct vdec_ioctl_msg)
-
-#define VDEC_IOCTL_SET_PERF_CLK \
-	_IOR(VDEC_IOCTL_MAGIC, 43, struct vdec_ioctl_msg)
 
 enum vdec_picture {
 	PICTURE_TYPE_I,
@@ -254,7 +246,7 @@ struct vdec_allocatorproperty {
 };
 
 struct vdec_bufferpayload {
-	void *bufferaddr;
+	void __user *bufferaddr;
 	size_t buffer_len;
 	int pmem_fd;
 	size_t offset;
@@ -504,19 +496,19 @@ struct vdec_picsize {
 };
 
 struct vdec_seqheader {
-	void *ptr_seqheader;
+	void __user *ptr_seqheader;
 	size_t seq_header_len;
 	int pmem_fd;
 	size_t pmem_offset;
 };
 
 struct vdec_mberror {
-	void *ptr_errormap;
+	void __user *ptr_errormap;
 	size_t err_mapsize;
 };
 
 struct vdec_input_frameinfo {
-	void *bufferaddr;
+	void __user *bufferaddr;
 	size_t offset;
 	size_t datalen;
 	uint32_t flags;
@@ -524,7 +516,7 @@ struct vdec_input_frameinfo {
 	void *client_data;
 	int pmem_fd;
 	size_t pmem_offset;
-	void *desc_addr;
+	void __user *desc_addr;
 	uint32_t desc_size;
 };
 
@@ -542,7 +534,7 @@ struct vdec_aspectratioinfo {
 };
 
 struct vdec_sep_metadatainfo {
-	void *metabufaddr;
+	void __user *metabufaddr;
 	uint32_t size;
 };
 
@@ -557,10 +549,8 @@ struct vdec_output_frameinfo {
 	void *input_frame_clientdata;
 	struct vdec_framesize framesize;
 	enum vdec_interlaced_format interlaced_format;
- 	struct vdec_aspectratioinfo aspect_ratio_info;
+	struct vdec_aspectratioinfo aspect_ratio_info;
 	struct vdec_sep_metadatainfo metadata_info;
-	size_t metadata_len;
-	size_t metadata_offset;
 };
 
 union vdec_msgdata {
@@ -593,7 +583,7 @@ struct vdec_mv_buff_size{
 	int size;
 	int alignment;
 };
- 
+
 struct vdec_meta_buffers {
 	size_t size;
 	int count;

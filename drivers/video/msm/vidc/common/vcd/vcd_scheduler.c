@@ -88,13 +88,8 @@ u32 vcd_sched_add_client(struct vcd_clnt_ctxt *cctxt)
 			prop_hdr.sz = sizeof(cctxt->frm_p_units);
 			rc = ddl_get_property(cctxt->ddl_handle, &prop_hdr,
 						  &cctxt->frm_p_units);
-			if (VCD_FAILED(rc)) {
-				kfree(sched_cctxt);
-				VCD_MSG_ERROR(
-					"Failed: Get DDL_I_FRAME_PROC_UNITS");
-				return rc;
-			}
-
+			VCD_FAILED_RETURN(rc,
+				"Failed: Get DDL_I_FRAME_PROC_UNITS");
 			if (cctxt->decoding) {
 				cctxt->frm_rate.fps_numerator =
 					VCD_DEC_INITIAL_FRAME_RATE;
@@ -104,12 +99,8 @@ u32 vcd_sched_add_client(struct vcd_clnt_ctxt *cctxt)
 				prop_hdr.sz = sizeof(cctxt->frm_rate);
 				rc = ddl_get_property(cctxt->ddl_handle,
 						&prop_hdr, &cctxt->frm_rate);
-				if (VCD_FAILED(rc)) {
-					kfree(sched_cctxt);
-					VCD_MSG_ERROR(
-						"Failed: Get VCD_I_FRAME_RATE");
-					return rc;
-				}
+				VCD_FAILED_RETURN(rc,
+					"Failed: Get VCD_I_FRAME_RATE");
 			}
 			if (!cctxt->perf_set_by_client)
 				cctxt->reqd_perf_lvl = cctxt->frm_p_units *

@@ -934,7 +934,7 @@ u32 vid_enc_set_get_entropy_cfg(struct video_client_ctx *client_ctx,
 	vcd_property_hdr.sz =
 		sizeof(struct vcd_property_entropy_control);
 	if (set_flag) {
-		switch (entropy_cfg->entropysel) {
+		switch (entropy_cfg->longentropysel) {
 		case VEN_ENTROPY_MODEL_CAVLC:
 			control.entropy_sel = VCD_ENTROPY_SEL_CAVLC;
 			break;
@@ -987,11 +987,11 @@ u32 vid_enc_set_get_entropy_cfg(struct video_client_ctx *client_ctx,
 		} else {
 			switch (control.entropy_sel) {
 			case VCD_ENTROPY_SEL_CABAC:
-				entropy_cfg->entropysel =
+				entropy_cfg->cabacmodel =
 					VEN_ENTROPY_MODEL_CABAC;
 				break;
 			case VCD_ENTROPY_SEL_CAVLC:
-				entropy_cfg->entropysel =
+				entropy_cfg->cabacmodel =
 					VEN_ENTROPY_MODEL_CAVLC;
 				break;
 			default:
@@ -1583,12 +1583,7 @@ u32 vid_enc_set_buffer(struct video_client_ctx *client_ctx,
 	enum vcd_buffer_type vcd_buffer_t = VCD_BUFFER_INPUT;
 	enum buffer_dir dir_buffer = BUFFER_TYPE_INPUT;
 	u32 vcd_status = VCD_ERR_FAIL;
-	unsigned long kernel_vaddr, length, user_vaddr, phy_addr = 0;
-	int pmem_fd = 0;
-	struct ion_handle *buff_handle = NULL;
-	u32 ion_flag = 0;
-	struct file *file = NULL;
-	s32 buffer_index = 0;
+	unsigned long kernel_vaddr, length = 0;
 
 	if (!client_ctx || !buffer_info)
 		return false;
@@ -1609,38 +1604,6 @@ u32 vid_enc_set_buffer(struct video_client_ctx *client_ctx,
 		    __func__, buffer_info->pbuffer);
 		return false;
 	}
-
-	/*
-	* Flush output buffers explcitly once, during registration. This ensures
-	* any pending CPU writes (if cleared after allocation) are
-	* committed right away, or else this may get flushed _after_
-	* the hardware has written bitstream. rare bug, but can happen !
-	*/
-	if (buffer == VEN_BUFFER_TYPE_OUTPUT) {
-		user_vaddr = (unsigned long)buffer_info->pbuffer;
-		if (!vidc_lookup_addr_table(client_ctx, BUFFER_TYPE_OUTPUT,
-					true, &user_vaddr, &kernel_vaddr,
-					&phy_addr, &pmem_fd, &file,
-					&buffer_index)) {
-			ERR("%s(): vidc_lookup_addr_table failed\n",
-			__func__);
-			return false;
-		}
-
-		ion_flag = vidc_get_fd_info(client_ctx, BUFFER_TYPE_OUTPUT,
-				buffer_info->fd, kernel_vaddr, buffer_index,
-				&buff_handle);
-
-		if (ion_flag == ION_FLAG_CACHED && buff_handle) {
-			msm_ion_do_cache_op(
-					client_ctx->user_ion_client,
-					buff_handle,
-					NULL,
-					(unsigned long) length,
-					ION_IOC_INV_CACHES);
-		}
-	}
-
 
 	vcd_status = vcd_set_buffer(client_ctx->vcd_handle,
 				    vcd_buffer_t, (u8 *) kernel_vaddr,
@@ -2032,28 +1995,4 @@ u32 vid_enc_get_recon_buffer_size(struct video_client_ctx *client_ctx,
 				__func__, vcd_status);
 			return false;
 		}
-}
-
-u32 vid_enc_get_curr_perf_level(struct video_client_ctx *client_ctx,
-		u32 *curr_perf_level)
-{
-	struct vcd_property_hdr vcd_property_hdr;
-	u32 vcd_status = VCD_ERR_FAIL;
-	u32 curr_perf_lvl = 0;
-
-	if (!client_ctx)
-		return false;
-
-	vcd_property_hdr.prop_id = VCD_I_GET_CURR_PERF_LEVEL;
-	vcd_property_hdr.sz = sizeof(u32);
-	vcd_status = vcd_get_property(client_ctx->vcd_handle,
-					&vcd_property_hdr, &curr_perf_lvl);
-	if (vcd_status) {
-		ERR("VCD_I_GET_PERF_LEVEL failed!!");
-		*curr_perf_level = 0;
-		return false;
-	} else {
-		*curr_perf_level = curr_perf_lvl;
-		return true;
-	}
 }
