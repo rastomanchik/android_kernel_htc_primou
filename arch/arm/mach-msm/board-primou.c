@@ -4125,8 +4125,6 @@ static void __init size_pmem_device(struct android_pmem_platform_data *pdata, un
 {
 	pdata->start = start;
 	pdata->size = size;
-	pr_info("%s: allocating %lu bytes at 0x%p (0x%lx physical) for %s\n",
-		__func__, size, __va(start), start, pdata->name);
 }
 
 static void __init size_pmem_devices(void)
