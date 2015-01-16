@@ -19,6 +19,7 @@
 #include <linux/init.h>
 #include <linux/uaccess.h>
 #include <linux/user.h>
+#include <linux/export.h>
 
 #include <asm/cputype.h>
 #include <asm/thread_notify.h>
