@@ -422,4 +422,3 @@ header-y += akm8975.h
 header-y += capella_cm3602.h
 header-y += lightsensor.h
 header-y += tpa2051d3.h
-header-y += msm_audio_7X30.h
