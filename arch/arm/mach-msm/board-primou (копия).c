@@ -2978,9 +2978,40 @@ static struct platform_device *headset_devices[] = {
 	/* Please put the headset detection driver on the last */
 };
 
+static struct headset_adc_config htc_headset_mgr_config[] = {
+	{
+		.type = HEADSET_MIC,
+		.adc_max = 58318,
+		.adc_min = 45532,
+	},
+	{
+		.type = HEADSET_BEATS,
+		.adc_max = 45531,
+		.adc_min = 33396,
+	},
+	{
+		.type = HEADSET_BEATS_SOLO,
+		.adc_max = 33395,
+		.adc_min = 23466,
+	},
+	{
+		.type = HEADSET_NO_MIC, /* HEADSET_INDICATOR */
+		.adc_max = 23465,
+		.adc_min = 9045,
+	},
+	{
+		.type = HEADSET_NO_MIC,
+		.adc_max = 9044,
+		.adc_min = 0,
+	},
+};
+
 static struct htc_headset_mgr_platform_data htc_headset_mgr_data = {
+	.driver_flag		= DRIVER_HS_MGR_FLOAT_DET,
 	.headset_devices_num	= ARRAY_SIZE(headset_devices),
 	.headset_devices	= headset_devices,
+	.headset_config_num	= ARRAY_SIZE(htc_headset_mgr_config),
+	.headset_config		= htc_headset_mgr_config,
 };
 
 static struct platform_device htc_headset_mgr = {
@@ -2995,7 +3026,7 @@ static void headset_device_register(void)
 {
 	pr_info("[HS_BOARD] (%s) Headset device register\n", __func__);
 	platform_device_register(&htc_headset_mgr);
-};
+}
 
 /* HEADSET DRIVER END */
 
@@ -3904,6 +3935,7 @@ static void __init primou_init(void)
 	buses_init();
 	if (board_mfg_mode()==1) {
 		pm_led_config[0].out_current = 40;
+		htc_headset_mgr_config[0].adc_max = 65535;
 	}
 
 	device_mid = get_model_id();
@@ -4045,6 +4077,15 @@ static struct ion_platform_data ion_pdata = {
 			.type	= ION_HEAP_TYPE_SYSTEM,
 			.name	= ION_VMALLOC_HEAP_NAME,
 		},
+		/* CAMERA */
+		{
+			.id	= ION_CAMERA_HEAP_ID,
+			.type	= ION_HEAP_TYPE_CARVEOUT,
+			.name	= ION_CAMERA_HEAP_NAME,
+			.memory_type = ION_EBI_TYPE,
+			.has_outer_cache = 1,
+			.extra_data = (void *)&co_ion_pdata,
+		},
 		/* PMEM_MDP = SF */
 		{
 			.id	= ION_SF_HEAP_ID,
@@ -4080,18 +4121,26 @@ static void fix_sizes(void)
 	msm_ion_camera_size = pmem_adsp_size;
 }
 
+static void __init size_pmem_device(struct android_pmem_platform_data *pdata, unsigned long start, unsigned long size)
+{
+	pdata->start = start;
+	pdata->size = size;
+}
+
 static void __init size_pmem_devices(void)
 {
-	android_pmem_adsp_pdata.size = pmem_adsp_size;
+        size_pmem_device(&android_pmem_adsp_pdata, 0, pmem_adsp_size);
 }
 
 static void __init size_ion_devices(void)
 {
+	ion_pdata.heaps[1].size = MSM_ION_CAMERA_SIZE;
 	ion_pdata.heaps[2].size = MSM_ION_SF_SIZE;
 }
 
 static void __init reserve_ion_memory(void)
 {
+	msm7x30_reserve_table[MEMTYPE_EBI0].size += MSM_ION_CAMERA_SIZE;
 	msm7x30_reserve_table[MEMTYPE_EBI0].size += MSM_ION_SF_SIZE;
 }
 
