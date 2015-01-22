@@ -62,9 +62,9 @@ struct voice_data {
 
 static struct q5v2_hw_info def_audio_hw[Q5V2_HW_COUNT] = {
 	[Q5V2_HW_HANDSET] = {
-		.max_gain[VOC_NB_INDEX] = 400,
+		.max_gain[VOC_NB_INDEX] = 600,
 		.min_gain[VOC_NB_INDEX] = -1600,
-		.max_gain[VOC_WB_INDEX] = 400,
+		.max_gain[VOC_WB_INDEX] = 600,
 		.min_gain[VOC_WB_INDEX] = -1600,
 	},
 	[Q5V2_HW_HEADSET] = {
@@ -205,9 +205,14 @@ static void voice_auddev_cb_function(u32 evt_id,
 				/* block to wait for CHANGE_START */
 				pr_info("start waiting for "
 					"voc_state -> VOICE_CHANGE\n");
-				rc = wait_event_interruptible(
+				/*Add timeout for wait event interruptible*/
+				rc = wait_event_interruptible_timeout(
 				v->voc_wait, (v->voc_state == VOICE_CHANGE)
-				|| (atomic_read(&v->rel_start_flag) == 1));
+				|| (atomic_read(&v->rel_start_flag) == 1), msecs_to_jiffies(1000));
+				if (rc == 0) {
+					pr_info("wait timeout, voc_state = %d\n", v->voc_state);
+					return;
+				}
 				pr_aud_info("wait done, voc_state = %d\n", v->voc_state);
 			} else {
 				MM_ERR("Get AUDDEV_EVT_DEV_CHG_VOICE "
@@ -745,7 +750,7 @@ static int voice_thread(void *data)
 						|| (atomic_read(&v->acq_start_flag) == 1));
 					if (atomic_read(&v->acq_start_flag) == 1)
 						atomic_dec(&v->acq_start_flag);
-					else
+					else 
 						rc = voice_cmd_release_done(v);
 					v->voc_state = VOICE_RELEASE;
 					pr_info("voc_state -> VOICE_RELEASE\n");

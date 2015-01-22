@@ -3,8 +3,8 @@ menu "CPU Frequency scaling"
 config CPU_FREQ
 	bool "CPU Frequency scaling"
 	help
-	  CPU Frequency scaling allows you to change the clock speed of 
-	  CPUs on the fly. This is a nice method to save power, because 
+	  CPU Frequency scaling allows you to change the clock speed of
+	  CPUs on the fly. This is a nice method to save power, because
 	  the lower the CPU clock speed, the less power the CPU consumes.
 
 	  Note that this driver doesn't automatically change the CPU
@@ -88,7 +88,6 @@ config CPU_FREQ_DEFAULT_GOV_ONDEMAND
 	  governor. If unsure have a look at the help section of the
 	  driver. Fallback governor will be the performance governor.
 
-
 config CPU_FREQ_DEFAULT_GOV_CONSERVATIVE
 	bool "conservative"
 	select CPU_FREQ_GOV_CONSERVATIVE
@@ -116,12 +115,20 @@ config CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND
 	help
 		Use the CPUFreq governor 'intellidemand' as default
 
-
 config CPU_FREQ_DEFAULT_GOV_SMARTMAX
 	bool "smartmax"
 	select CPU_FREQ_GOV_SMARTMAX
 	help
 		Use the CPUFreq governor 'smartmax' as default
+
+config CPU_FREQ_DEFAULT_GOV_INTELLIACTIVE
+	bool "intelliactive"
+	select CPU_FREQ_GOV_INTELLIACTIVE
+	help
+	  Use the CPUFreq governor 'intelliactive' as default. This allows
+	  you to get a full dynamic cpu frequency capable system by simply
+	  loading your cpufreq low-level hardware driver, using the
+	  'interactive' governor for latency-sensitive workloads.
 
 endchoice
 
@@ -152,7 +159,7 @@ config CPU_FREQ_GOV_USERSPACE
 	help
 	  Enable this cpufreq governor when you either want to set the
 	  CPU frequency manually or when a userspace program shall
-	  be able to set the CPU dynamically, like on LART 
+	  be able to set the CPU dynamically, like on LART
 	  <http://www.lartmaker.nl/>.
 
 	  To compile this driver as a module, choose M here: the
@@ -167,11 +174,11 @@ config CPU_FREQ_GOV_ONDEMAND
 	select CPU_FREQ_TABLE
 	help
 	  'ondemand' - This driver adds a dynamic cpufreq policy governor.
-	  The governor does a periodic polling and 
+	  The governor does a periodic polling and
 	  changes frequency based on the CPU utilization.
 	  The support for this governor depends on CPU capability to
 	  do fast frequency switching (i.e, very low latency frequency
-	  transitions). 
+	  transitions).
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called cpufreq_ondemand.
@@ -179,12 +186,6 @@ config CPU_FREQ_GOV_ONDEMAND
 	  For details, take a look at linux/Documentation/cpu-freq.
 
 	  If in doubt, say N.
-
-config CPU_FREQ_GOV_ONDEMAND_2_PHASE
-	tristate "'2-phase' power-efficiency ondemand algorithm"
-	depends on CPU_FREQ_GOV_ONDEMAND
-	help
-	  '2-phase' - This driver adds a new algo to save power
 
 config CPU_FREQ_GOV_INTERACTIVE
 	tristate "'interactive' cpufreq policy governor"
@@ -227,24 +228,12 @@ config CPU_FREQ_GOV_SMARTMAX
 	help
 	  'smartmax' combined ondemand and smartass2
 
-config CPU_FREQ_GOV_SMARTMAX_TEGRA
-	bool "'smartmax' for tegra"
-	depends on CPU_FREQ_GOV_SMARTMAX
-
 config CPU_FREQ_GOV_SMARTMAX_30
 	bool "'smartmax' for 3.0 and 3.1 kernels"
 	depends on CPU_FREQ_GOV_SMARTMAX
 
-config CPU_FREQ_GOV_SMARTMAX_ENRC2B
-	bool "'smartmax' defaults for enrc2b"
-	depends on CPU_FREQ_GOV_SMARTMAX
-
 config CPU_FREQ_GOV_SMARTMAX_PRIMOU
 	bool "'smartmax' defaults for primou"
-	depends on CPU_FREQ_GOV_SMARTMAX
-
-config CPU_FREQ_GOV_SMARTMAX_M7
-	bool "'smartmax' defaults for m7"
 	depends on CPU_FREQ_GOV_SMARTMAX
 
 config CPU_FREQ_GOV_INTERACTIVE
@@ -282,6 +271,23 @@ config CPU_FREQ_GOV_CONSERVATIVE
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called cpufreq_conservative.
+
+	  For details, take a look at linux/Documentation/cpu-freq.
+
+	  If in doubt, say N.
+
+config CPU_FREQ_GOV_INTELLIACTIVE
+	tristate "'intelliactive' cpufreq policy governor"
+	help
+	  'intelliactive' - This driver adds a dynamic cpufreq policy governor
+	  designed for latency-sensitive workloads.
+
+	  This governor attempts to reduce the latency of clock
+	  increases so that the system is more responsive to
+	  interactive workloads.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called cpufreq_interactive.
 
 	  For details, take a look at linux/Documentation/cpu-freq.
 
