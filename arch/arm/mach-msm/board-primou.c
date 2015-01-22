@@ -4045,6 +4045,15 @@ static struct ion_platform_data ion_pdata = {
 			.type	= ION_HEAP_TYPE_SYSTEM,
 			.name	= ION_VMALLOC_HEAP_NAME,
 		},
+		/* CAMERA */
+		{
+			.id	= ION_CAMERA_HEAP_ID,
+			.type	= ION_HEAP_TYPE_CARVEOUT,
+			.name	= ION_CAMERA_HEAP_NAME,
+			.memory_type = ION_EBI_TYPE,
+			.has_outer_cache = 1,
+			.extra_data = (void *)&co_ion_pdata,
+		},
 		/* PMEM_MDP = SF */
 		{
 			.id	= ION_SF_HEAP_ID,
@@ -4074,12 +4083,6 @@ static struct memtype_reserve msm7x30_reserve_table[] __initdata = {
 	},
 };
 
-unsigned long msm_ion_camera_size;
-static void fix_sizes(void)
-{
-	msm_ion_camera_size = pmem_adsp_size;
-}
-
 static void __init size_pmem_devices(void)
 {
 	android_pmem_adsp_pdata.size = pmem_adsp_size;
@@ -4087,6 +4090,7 @@ static void __init size_pmem_devices(void)
 
 static void __init size_ion_devices(void)
 {
+	ion_pdata.heaps[1].size = MSM_ION_CAMERA_SIZE;
 	ion_pdata.heaps[2].size = MSM_ION_SF_SIZE;
 }
 
@@ -4110,7 +4114,6 @@ static void __init reserve_pmem_memory(void)
 
 static void __init msm7x30_calculate_reserve_sizes(void)
 {
-	fix_sizes();
 	size_pmem_devices();
 	reserve_pmem_memory();
 	size_ion_devices();

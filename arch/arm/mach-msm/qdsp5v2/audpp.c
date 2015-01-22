@@ -35,7 +35,7 @@
 #include <mach/qdsp5v2/audpp.h>
 #include <mach/qdsp5v2/audio_dev_ctl.h>
 
-#include "../qdsp5/evlog.h"
+#include <mach/qdsp5v2/evlog.h>
 #include <mach/debug_mm.h>
 
 enum {
