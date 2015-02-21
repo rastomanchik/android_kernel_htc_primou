@@ -354,12 +354,12 @@ CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
-MODFLAGS  = -DMODULE -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a8 -march=armv7-a -mfpu=neon -mvectorize-with-neon-quad
-CFLAGS_MODULE   = $(MODFLAGS)
-AFLAGS_MODULE   = $(MODFLAGS)
+MODFLAGS  = -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -munaligned-access -mcpu=cortex-a8 -mtune=cortex-a8 -march=armv7-a -mfpu=neon -mvectorize-with-neon-quad
+CFLAGS_MODULE   = -DMODULE $(MODFLAGS)
+AFLAGS_MODULE   = -DMODULE $(MODFLAGS)
 LDFLAGS_MODULE  = -T $(srctree)/scripts/module-common.lds
-CFLAGS_KERNEL	= -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a8 -march=armv7-a -mfpu=neon -mvectorize-with-neon-quad
-AFLAGS_KERNEL	= -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a8 -march=armv7-a -mfpu=neon -mvectorize-with-neon-quad
+CFLAGS_KERNEL	= $(MODFLAGS)
+AFLAGS_KERNEL	= $(MODFLAGS)
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 
@@ -373,13 +373,14 @@ LINUXINCLUDE    := -I$(srctree)/arch/$(hdr-arch)/include \
 KBUILD_CPPFLAGS := -D__KERNEL__
 
 KBUILD_CFLAGS   := -Wstrict-prototypes -Wno-trigraphs \
-		   -fno-strict-aliasing -fno-common \
-		   -Wno-format-security \
-                   -fno-delete-null-pointer-checks -mno-unaligned-access \
-		   -marm -mcpu=cortex-a8 -mtune=cortex-a8 -mfpu=neon \
-		   -fsingle-precision-constant -fpredictive-commoning -fipa-cp-clone \
-                   -fmodulo-sched -fmodulo-sched-allow-regmoves \
-		   -funsafe-math-optimizations -fgcse-after-reload -pipe
+		   			-fno-strict-aliasing -fno-common \
+		   			-Wno-format-security \
+		   			-Werror-implicit-function-declaration \
+                   	-fno-delete-null-pointer-checks -mno-unaligned-access \
+		   			-marm -mcpu=cortex-a8 -mtune=cortex-a8 -mfpu=neon \
+		   			-fsingle-precision-constant -fpredictive-commoning -fipa-cp-clone \
+                   	-fmodulo-sched -fmodulo-sched-allow-regmoves \
+		   			-funsafe-math-optimizations -fgcse-after-reload -pipe
 
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=

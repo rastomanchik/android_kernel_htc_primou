@@ -113,7 +113,6 @@
 
 #ifdef CONFIG_ION_MSM
 #include <linux/msm_ion.h>
-#include <mach/ion.h>
 #endif
 
 #ifdef CONFIG_SERIAL_BCM_BT_LPM
@@ -4083,6 +4082,12 @@ static struct memtype_reserve msm7x30_reserve_table[] __initdata = {
 	},
 };
 
+unsigned long msm_ion_camera_size;
+static void fix_sizes(void)
+{
+	msm_ion_camera_size = pmem_adsp_size;
+}
+
 static void __init size_pmem_devices(void)
 {
 	android_pmem_adsp_pdata.size = pmem_adsp_size;
@@ -4114,6 +4119,7 @@ static void __init reserve_pmem_memory(void)
 
 static void __init msm7x30_calculate_reserve_sizes(void)
 {
+	fix_sizes();
 	size_pmem_devices();
 	reserve_pmem_memory();
 	size_ion_devices();

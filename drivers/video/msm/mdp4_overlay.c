@@ -94,6 +94,7 @@ extern struct panel_icm_info *panel_icm;
 extern wait_queue_head_t panel_update_wait_queue;
 #endif
 
+static int is_mdp_clock_192HZ = 0;
 static int z_order_change = 0;
 #ifdef CONFIG_FB_MSM_LCDC
 static void mdp4_reset_mdp_clk(struct work_struct *w);
@@ -737,9 +738,9 @@ int mdp4_overlay_format2pipe(struct mdp4_overlay_pipe *pipe)
 		pipe->unpack_tight = 1;
 		pipe->unpack_align_msb = 0;
 		pipe->unpack_count = 2;
-		pipe->element2 = C2_R_Cr;	/* R */
+		pipe->element2 = C1_B_Cb;	/* B */
 		pipe->element1 = C0_G_Y;	/* G */
-		pipe->element0 = C1_B_Cb;	/* B */
+		pipe->element0 = C2_R_Cr;	/* R */
 		pipe->bpp = 3;	/* 3 bpp */
 		break;
 	case MDP_BGR_565:
@@ -769,10 +770,10 @@ int mdp4_overlay_format2pipe(struct mdp4_overlay_pipe *pipe)
 		pipe->unpack_tight = 1;
 		pipe->unpack_align_msb = 0;
 		pipe->unpack_count = 3;
-		pipe->element3 = C3_ALPHA;	/* alpha */
-		pipe->element2 = C2_R_Cr;	/* R */
-		pipe->element1 = C0_G_Y;	/* G */
-		pipe->element0 = C1_B_Cb;	/* B */
+		pipe->element3 = C1_B_Cb;	/* B */
+		pipe->element2 = C0_G_Y;	/* G */
+		pipe->element1 = C2_R_Cr;	/* R */
+		pipe->element0 = C3_ALPHA;	/* alpha */
 		pipe->bpp = 4;		/* 4 bpp */
 		break;
 	case MDP_ARGB_8888:
@@ -786,10 +787,10 @@ int mdp4_overlay_format2pipe(struct mdp4_overlay_pipe *pipe)
 		pipe->unpack_tight = 1;
 		pipe->unpack_align_msb = 0;
 		pipe->unpack_count = 3;
-		pipe->element3 = C3_ALPHA;	/* alpha */
-		pipe->element2 = C2_R_Cr;	/* R */
-		pipe->element1 = C0_G_Y;	/* G */
-		pipe->element0 = C1_B_Cb;	/* B */
+		pipe->element3 = C1_B_Cb;	/* B */
+		pipe->element2 = C0_G_Y;	/* G */
+		pipe->element1 = C2_R_Cr;	/* R */
+		pipe->element0 = C3_ALPHA;	/* alpha */
 		pipe->bpp = 4;		/* 4 bpp */
 		break;
 	case MDP_RGBA_8888:
@@ -875,23 +876,21 @@ int mdp4_overlay_format2pipe(struct mdp4_overlay_pipe *pipe)
 		pipe->unpack_tight = 1;
 		pipe->unpack_align_msb = 0;
 		pipe->unpack_count = 1;		/* 2 */
-		pipe->element3 = C0_G_Y;	/* not used */
-		pipe->element2 = C0_G_Y;	/* not used */
 		if (pipe->src_format == MDP_Y_CRCB_H2V1) {
-			pipe->element1 = C2_R_Cr;	/* R */
-			pipe->element0 = C1_B_Cb;	/* B */
+			pipe->element1 = C1_B_Cb;
+			pipe->element0 = C2_R_Cr;
 			pipe->chroma_sample = MDP4_CHROMA_H2V1;
 		} else if (pipe->src_format == MDP_Y_CBCR_H2V1) {
-			pipe->element1 = C1_B_Cb;	/* B */
-			pipe->element0 = C2_R_Cr;	/* R */
+			pipe->element1 = C2_R_Cr;
+			pipe->element0 = C1_B_Cb;
 			pipe->chroma_sample = MDP4_CHROMA_H2V1;
 		} else if (pipe->src_format == MDP_Y_CRCB_H2V2) {
-			pipe->element1 = C2_R_Cr;	/* R */
-			pipe->element0 = C1_B_Cb;	/* B */
+			pipe->element1 = C1_B_Cb;
+			pipe->element0 = C2_R_Cr;
 			pipe->chroma_sample = MDP4_CHROMA_420;
 		} else if (pipe->src_format == MDP_Y_CBCR_H2V2) {
-			pipe->element1 = C1_B_Cb;	/* B */
-			pipe->element0 = C2_R_Cr;	/* R */
+			pipe->element1 = C2_R_Cr;
+			pipe->element0 = C1_B_Cb;
 			pipe->chroma_sample = MDP4_CHROMA_420;
 		}
 		pipe->bpp = 2;	/* 2 bpp */
@@ -908,15 +907,13 @@ int mdp4_overlay_format2pipe(struct mdp4_overlay_pipe *pipe)
 		pipe->unpack_tight = 1;
 		pipe->unpack_align_msb = 0;
 		pipe->unpack_count = 1;		/* 2 */
-		pipe->element3 = C0_G_Y;	/* not used */
-		pipe->element2 = C0_G_Y;	/* not used */
 		if (pipe->src_format == MDP_Y_CRCB_H2V2_TILE) {
-			pipe->element1 = C2_R_Cr;	/* R */
-			pipe->element0 = C1_B_Cb;	/* B */
-			pipe->chroma_sample = MDP4_CHROMA_420;
-		} else if (pipe->src_format == MDP_Y_CBCR_H2V2_TILE) {
 			pipe->element1 = C1_B_Cb;	/* B */
 			pipe->element0 = C2_R_Cr;	/* R */
+			pipe->chroma_sample = MDP4_CHROMA_420;
+		} else if (pipe->src_format == MDP_Y_CBCR_H2V2_TILE) {
+			pipe->element1 = C2_R_Cr;	/* R */
+			pipe->element0 = C1_B_Cb;	/* B */
 			pipe->chroma_sample = MDP4_CHROMA_420;
 		}
 		pipe->bpp = 2;	/* 2 bpp */
@@ -1614,7 +1611,8 @@ static int get_img(struct msmfb_data *img, struct fb_info *info,
 
 	if (MAJOR(file->f_dentry->d_inode->i_rdev) == FB_MAJOR) {
 		fb_num = MINOR(file->f_dentry->d_inode->i_rdev);
-		if (get_fb_phys_info(start, len, fb_num, DISPLAY_SUBSYSTEM_ID))
+		if (get_fb_phys_info(start, len, fb_num,
+			DISPLAY_SUBSYSTEM_ID))
 			ret = -1;
 		else
 			*pp_file = file;
@@ -1748,16 +1746,31 @@ int mdp4_overlay_alter_req(struct mdp_overlay *req)
     int video_size = 0;
     video_size = req->src.width * req->src.height / 10000;
 
+	//PR_DISP_ERR("======req->dst_rect.h %d,req->dst_rect.w %d=======\n",req->dst_rect.h,req->dst_rect.w);
 	if (req->user_data[0] == 0 && video_size > 46){ //Cut src to small size when it is big than 480*960.
         if (req->dst_rect.w == 480){
             if (req->src.width == 1280){ //For 720P video, we need to cut both src width and height size.
                 if (req->src.height >= 640) {
                     /*1280*720 fix fullscreen cut*/
-                    req->src_rect.x = 80;
-                    req->src_rect.y = (req->src.height - 640) / 2;
-                    req->src_rect.w = req->src.width - 160;
-                    req->src_rect.h = 640;
-                }
+#ifdef CONFIG_MACH_PRIMOTD
+			req->src_rect.x = 80;
+			req->src_rect.y = (req->src.height - 640) / 2;
+			req->src_rect.w = req->src.width - 160;
+			req->src_rect.h = 640;
+#else
+#ifdef CONFIG_MACH_SPADE
+			req->src_rect.x = 60;
+			req->src_rect.y = 90;
+			req->src_rect.w = 800;
+			req->src_rect.h = 480;
+#else
+			req->src_rect.x = 60;
+			req->src_rect.y = 90;
+			req->src_rect.w = 960;
+			req->src_rect.h = 540;
+#endif
+#endif
+		}
                 else {// If it's big enough, like 1280*544, we still need to cut it to smaller size.
                     req->src_rect.x = 80;
                     req->src_rect.w = req->src.width - 160;
@@ -1770,14 +1783,22 @@ int mdp4_overlay_alter_req(struct mdp_overlay *req)
                 req->src_rect.h = req->src.height - 40;
             }
         }
-        else if (req->dst_rect.h == 135 && req->dst_rect.w == 240) {
-            /*720*1280 video trim */
-            req->src_rect.x = 60;
-            req->src_rect.y = 90;
-            req->src_rect.w = 800;
-            req->src_rect.h = 480;
-        }
     }
+	else if (req->dst_rect.h == 426 && req->dst_rect.w == 240) {
+		if (req->src.width == 1280 || req->src.height == 720) {
+			/*720*1280 video trim */
+			req->src_rect.x = 60;
+			req->src_rect.y = 90;
+			req->src_rect.w = 800;
+			req->src_rect.h = 480;
+		} else if (req->src.height == 1280) {
+			/*1280*720 video trim*/
+			req->src_rect.x = 90;
+			req->src_rect.y = 60;
+			req->src_rect.w = 480;
+			req->src_rect.h = 800;
+		}
+        }
 	return 0;
 }
 
@@ -1798,7 +1819,6 @@ int mdp4_overlay_set(struct mdp_device *mdp_dev, struct fb_info *info, struct md
 #ifdef DEBUG_OVERLAY
 	mdp4_dump_ov(req);
 #endif
-
 	if(mdp->out_if[MSM_LCDC_INTERFACE].registered == 1)//Workaround: Reduce src size to avoid MDP underrun in LCDC panel
 		mdp4_overlay_alter_req(req);
 
@@ -1906,7 +1926,7 @@ int mdp4_overlay_unset(struct mdp_device *mdp_dev, struct fb_info *info, int ndx
 	clk_disable(mdp->clk);
 
 #ifdef CONFIG_FB_MSM_LCDC
-	if(reset_mdp_clk_wq) /* slow down the mdp clk after unset overlay */
+	if(reset_mdp_clk_wq && mdp->out_if[MSM_LCDC_INTERFACE].registered == 1) /* slow down the mdp clk after unset overlay */
 		queue_delayed_work(reset_mdp_clk_wq, &reset_mdp_clk_work, HZ/10);
 #endif
 	return 0;
@@ -1915,8 +1935,9 @@ int mdp4_overlay_unset(struct mdp_device *mdp_dev, struct fb_info *info, int ndx
 #ifdef CONFIG_FB_MSM_LCDC
 static void mdp4_reset_mdp_clk(struct work_struct *w)
 {
-    if(mdp_clk) {
+    if(mdp_clk && is_mdp_clock_192HZ) {
         clk_set_rate(mdp_clk, 122880000);
+	is_mdp_clock_192HZ = 0;
         PR_DISP_INFO("%s reset mdp clk\n", __func__);
     }
 }
@@ -2082,11 +2103,15 @@ int mdp4_overlay_play(struct mdp_device *mdp_dev, struct fb_info *info, struct m
 #ifdef CONFIG_FB_MSM_LCDC
 
     video_size = pipe->src_width * pipe->src_height / 10000;
-    if((pipe->req_data.user_data[0] == 0 && video_size > 46 )||
-            (321 == pipe->dst_w && 192 == pipe->dst_h)){
+    if(mdp->out_if[MSM_LCDC_INTERFACE].registered == 1 && !is_mdp_clock_192HZ &&
+    ((pipe->req_data.user_data[0] == 0 && video_size > 46 )||
+	(321 == pipe->dst_w && 192 == pipe->dst_h) ||
+	(240 == pipe->dst_w && 426 == pipe->dst_h))) {
         clk_set_rate(mdp->ebi1_clk, 192000000);
         clk_set_rate(mdp->clk, 192000000);
         clk_enable(mdp->clk);
+	PR_DISP_INFO("%s raise mdp clk\n", __func__);
+	is_mdp_clock_192HZ = 1;
     }
     else {
         clk_set_rate(mdp->ebi1_clk, 153000000);
