@@ -292,7 +292,7 @@ endif # End CONFIG_ARCH_MSM7X30_SMD
 endif
 
 # MSM7x30 boards
-obj-$(CONFIG_ARCH_MSM7X30) += htc_wifi_nvs.o
+obj-$(CONFIG_ARCH_MSM7X30) += htc_wifi_nvs.o htc_lpm.o
 obj-$(CONFIG_MACH_PRIMOU) += board-primou.o board-primou-wifi.o
 obj-$(CONFIG_MACH_PRIMOU) += display/primou-panel.o board-primou-audio.o
 obj-$(CONFIG_MACH_PRIMOU) += board-primou-keypad.o
