@@ -486,9 +486,9 @@ static void vfe31_release(struct platform_device *pdev)
 		if (sctrl)
 			sctrl->s_release();
 	}
-#if !defined(CONFIG_MACH_RUNNYMEDE)
+
         vfe_stop();
-#endif
+
 	vfemem = vfe31_ctrl->vfemem;
 	vfeio  = vfe31_ctrl->vfeio;
 
@@ -512,11 +512,11 @@ static void vfe31_release(struct platform_device *pdev)
 		if (sctrl)
 			sctrl->s_release();
 	}
-
+#ifndef CONFIG_MACH_GOLFC
 	/* for some sensor doesn't disable MCLK when sensor release */
 	if (!sinfo->use_rawchip)
 		msm_camio_probe_off(pdev);
-
+#endif
 	pr_info("[CAM] %s X\n", __func__);
 }
 

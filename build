@@ -5,14 +5,14 @@ rm -rf modules
 mkdir modules
 export ARCH=arm
 
-export CROSS_COMPILE=~/android/arm-eabi-4.9/bin/arm-eabi-
-export EABI_PATCH=~/android/arm-eabi-4.9/bin
+export CROSS_COMPILE=~/android_cm11/prebuilt/linux-x86/toolchain/linaro-4.9-cortex-a8/bin/arm-eabi-
+export EABI_PATCH=~/android_cm11/prebuilt/linux-x86/toolchain/linaro-4.9-cortex-a8/bin
 export KERNELRELEASE=3.0.101
 make clean && make mrproper
 
 echo "****Сборка ядра****"
 make primou_defconfig
-make -j5
+make -j4
 
 #echo "****** Установка модулей ******"
 #find . -name "*.ko" -exec cp {} ~/android/kitkat/kernel/modules/ \;

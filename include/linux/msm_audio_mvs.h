@@ -68,10 +68,7 @@ enum msm_audio_voc_rate {
 		MVS_VOC_8_RATE, /* 1/8 rate    */
 		MVS_VOC_4_RATE, /* 1/4 rate    */
 		MVS_VOC_2_RATE, /* 1/2 rate    */
-		MVS_VOC_1_RATE,	/* Full rate   */
-		MVS_VOC_ERASURE, /* erasure frame */
-		MVS_VOC_RATE_MAX,
-		MVS_VOC_RATE_UNDEF = MVS_VOC_RATE_MAX
+		MVS_VOC_1_RATE	/* Full rate   */
 };
 
 enum msm_audio_amr_frame_type {
@@ -86,40 +83,18 @@ enum msm_audio_amr_frame_type {
 	MVS_AMR_SPEECH_LOST	      /* Downlink speech lost           */
 };
 
-struct min_max_rate {
-	uint32_t min_rate;
-	uint32_t max_rate;
-};
-
 struct msm_audio_mvs_config {
 	uint32_t mvs_mode;
 	uint32_t rate_type;
-	struct min_max_rate min_max_rate;
 	uint32_t dtx_mode;
 };
 
 #define MVS_MAX_VOC_PKT_SIZE 320
 
-struct gsm_header {
-	uint8_t bfi;
-	uint8_t sid;
-	uint8_t taf;
-	uint8_t ufi;
-};
-
 struct msm_audio_mvs_frame {
 	uint32_t frame_type;
 	uint32_t len;
 	uint8_t voc_pkt[MVS_MAX_VOC_PKT_SIZE];
-
-};
-
-#define Q5V2_MVS_MAX_VOC_PKT_SIZE 320
-
-struct q5v2_msm_audio_mvs_frame {
-	uint32_t frame_type;
-	uint32_t len;
-	uint8_t voc_pkt[Q5V2_MVS_MAX_VOC_PKT_SIZE];
 
 };
 

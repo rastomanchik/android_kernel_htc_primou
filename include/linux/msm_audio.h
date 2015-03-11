@@ -97,9 +97,6 @@
 #define AUDIO_GET_ACDB_BLK _IOW(AUDIO_IOCTL_MAGIC, 96,  \
 					struct msm_acdb_cmd_device)
 
-#define AUDIO_REGISTER_ION _IOW(AUDIO_IOCTL_MAGIC, 97, unsigned)
-#define AUDIO_DEREGISTER_ION _IOW(AUDIO_IOCTL_MAGIC, 98, unsigned)
-
 #define	AUDIO_MAX_COMMON_IOCTL_NUM	100
 
 
@@ -139,8 +136,6 @@
 #define IIR_ENABLE		0x0004
 #define QCONCERT_PLUS_ENABLE	0x0008
 #define MBADRC_ENABLE		0x0010
-#define SRS_ENABLE		0x0020
-#define SRS_DISABLE		0x0040
 
 #define AGC_ENABLE		0x0001
 #define NS_ENABLE		0x0002
@@ -176,11 +171,6 @@ struct msm_audio_stats {
 	uint32_t byte_count;
 	uint32_t sample_count;
 	uint32_t unused[2];
-};
-
-struct msm_audio_ion_info {
-	int fd;
-	void *vaddr;
 };
 
 struct msm_audio_pmem_info {

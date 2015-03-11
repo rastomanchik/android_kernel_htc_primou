@@ -249,7 +249,7 @@ struct mem_cgroup {
 	atomic_t	oom_lock;
 	atomic_t	refcnt;
 
-	unsigned int	swappiness;
+	int	swappiness;
 	/* OOM-Killer disable */
 	int		oom_kill_disable;
 
@@ -1251,7 +1251,8 @@ mem_cgroup_get_reclaim_stat_from_page(struct page *page)
 unsigned long mem_cgroup_isolate_pages(unsigned long nr_to_scan,
 					struct list_head *dst,
 					unsigned long *scanned, int order,
-					int mode, struct zone *z,
+					isolate_mode_t mode,
+					struct zone *z,
 					struct mem_cgroup *mem_cont,
 					int active, int file)
 {
@@ -1329,7 +1330,7 @@ static unsigned long mem_cgroup_margin(struct mem_cgroup *mem)
 	return margin >> PAGE_SHIFT;
 }
 
-static unsigned int get_swappiness(struct mem_cgroup *memcg)
+int mem_cgroup_swappiness(struct mem_cgroup *memcg)
 {
 	struct cgroup *cgrp = memcg->css.cgroup;
 
@@ -1776,12 +1777,11 @@ static int mem_cgroup_hierarchical_reclaim(struct mem_cgroup *root_mem,
 		/* we use swappiness of local cgroup */
 		if (check_soft) {
 			ret = mem_cgroup_shrink_node_zone(victim, gfp_mask,
-				noswap, get_swappiness(victim), zone,
-				&nr_scanned);
+				noswap, zone, &nr_scanned);
 			*total_scanned += nr_scanned;
 		} else
 			ret = try_to_free_mem_cgroup_pages(victim, gfp_mask,
-						noswap, get_swappiness(victim));
+						noswap);
 		css_put(&victim->css);
 		/*
 		 * At shrinking usage, we can't check we should stop here or
@@ -1910,7 +1910,7 @@ bool mem_cgroup_handle_oom(struct mem_cgroup *mem, gfp_t mask)
 
 	if (need_to_kill) {
 		finish_wait(&memcg_oom_waitq, &owait.wait);
-		mem_cgroup_out_of_memory(mem, mask, 0);
+		mem_cgroup_out_of_memory(mem, mask);
 	} else {
 		schedule();
 		finish_wait(&memcg_oom_waitq, &owait.wait);
@@ -3398,50 +3398,6 @@ void mem_cgroup_end_migration(struct mem_cgroup *mem,
 }
 
 /*
- * At replace page cache, newpage is not under any memcg but it's on
- * LRU. So, this function doesn't touch res_counter but handles LRU
- * in correct way. Both pages are locked so we cannot race with uncharge.
- */
-void mem_cgroup_replace_page_cache(struct page *oldpage,
-                                  struct page *newpage)
-{
-        struct mem_cgroup *memcg;
-        struct page_cgroup *pc;
-        struct zone *zone;
-        enum charge_type type = MEM_CGROUP_CHARGE_TYPE_CACHE;
-        unsigned long flags;
-
-        if (mem_cgroup_disabled())
-                return;
-
-        pc = lookup_page_cgroup(oldpage);
-        /* fix accounting on old pages */
-        lock_page_cgroup(pc);
-        memcg = pc->mem_cgroup;
-        mem_cgroup_charge_statistics(memcg, PageCgroupCache(pc), -1);
-        ClearPageCgroupUsed(pc);
-        unlock_page_cgroup(pc);
-
-        if (PageSwapBacked(oldpage))
-                type = MEM_CGROUP_CHARGE_TYPE_SHMEM;
-
-        zone = page_zone(newpage);
-        pc = lookup_page_cgroup(newpage);
-        /*
-         * Even if newpage->mapping was NULL before starting replacement,
-         * the newpage may be on LRU(or pagevec for LRU) already. We lock
-         * LRU while we overwrite pc->mem_cgroup.
-         */
-        spin_lock_irqsave(&zone->lru_lock, flags);
-        if (PageLRU(newpage))
-                del_page_from_lru_list(zone, newpage, page_lru(newpage));
-        __mem_cgroup_commit_charge(memcg, newpage, 1, pc, type);
-        if (PageLRU(newpage))
-                add_page_to_lru_list(zone, newpage, page_lru(newpage));
-        spin_unlock_irqrestore(&zone->lru_lock, flags);
-}
-
-/*
  * A call to try to shrink memory usage on charge failure at shmem's swapin.
  * Calling hierarchical_reclaim is not enough because we should update
  * last_oom_jiffies to prevent pagefault_out_of_memory from invoking global OOM.
@@ -3464,6 +3420,50 @@ int mem_cgroup_shmem_charge_fallback(struct page *page,
 		mem_cgroup_cancel_charge_swapin(mem); /* it does !mem check */
 
 	return ret;
+}
+
+/*
+ * At replace page cache, newpage is not under any memcg but it's on
+ * LRU. So, this function doesn't touch res_counter but handles LRU
+ * in correct way. Both pages are locked so we cannot race with uncharge.
+ */
+void mem_cgroup_replace_page_cache(struct page *oldpage,
+				  struct page *newpage)
+{
+	struct mem_cgroup *memcg;
+	struct page_cgroup *pc;
+	struct zone *zone;
+	enum charge_type type = MEM_CGROUP_CHARGE_TYPE_CACHE;
+	unsigned long flags;
+
+	if (mem_cgroup_disabled())
+		return;
+
+	pc = lookup_page_cgroup(oldpage);
+	/* fix accounting on old pages */
+	lock_page_cgroup(pc);
+	memcg = pc->mem_cgroup;
+	mem_cgroup_charge_statistics(memcg, PageCgroupCache(pc), -1);
+	ClearPageCgroupUsed(pc);
+	unlock_page_cgroup(pc);
+
+	if (PageSwapBacked(oldpage))
+		type = MEM_CGROUP_CHARGE_TYPE_SHMEM;
+
+	zone = page_zone(newpage);
+	pc = lookup_page_cgroup(newpage);
+	/*
+	 * Even if newpage->mapping was NULL before starting replacement,
+	 * the newpage may be on LRU(or pagevec for LRU) already. We lock
+	 * LRU while we overwrite pc->mem_cgroup.
+	 */
+	spin_lock_irqsave(&zone->lru_lock, flags);
+	if (PageLRU(newpage))
+		del_page_from_lru_list(zone, newpage, page_lru(newpage));
+	__mem_cgroup_commit_charge(memcg, newpage, 1, pc, type);
+	if (PageLRU(newpage))
+		add_page_to_lru_list(zone, newpage, page_lru(newpage));
+	spin_unlock_irqrestore(&zone->lru_lock, flags);
 }
 
 #ifdef CONFIG_DEBUG_VM
@@ -3870,7 +3870,7 @@ try_to_free:
 			goto out;
 		}
 		progress = try_to_free_mem_cgroup_pages(mem, GFP_KERNEL,
-						false, get_swappiness(mem));
+						false);
 		if (!progress) {
 			nr_retries--;
 			/* maybe some writeback is necessary */
@@ -4332,7 +4332,7 @@ static u64 mem_cgroup_swappiness_read(struct cgroup *cgrp, struct cftype *cft)
 {
 	struct mem_cgroup *memcg = mem_cgroup_from_cont(cgrp);
 
-	return get_swappiness(memcg);
+	return mem_cgroup_swappiness(memcg);
 }
 
 static int mem_cgroup_swappiness_write(struct cgroup *cgrp, struct cftype *cft,
@@ -4564,6 +4564,9 @@ static void mem_cgroup_usage_unregister_event(struct cgroup *cgrp,
 	 */
 	BUG_ON(!thresholds);
 
+	if (!thresholds->primary)
+		goto unlock;
+
 	usage = mem_cgroup_usage(memcg, type == _MEMSWAP);
 
 	/* Check if a threshold crossed before removing */
@@ -4618,7 +4621,7 @@ swap_buffers:
 
 	/* To be sure that nobody uses thresholds */
 	synchronize_rcu();
-
+unlock:
 	mutex_unlock(&memcg->thresholds_lock);
 }
 
@@ -5053,7 +5056,7 @@ mem_cgroup_create(struct cgroup_subsys *ss, struct cgroup *cont)
 	INIT_LIST_HEAD(&mem->oom_notify);
 
 	if (parent)
-		mem->swappiness = get_swappiness(parent);
+		mem->swappiness = mem_cgroup_swappiness(parent);
 	atomic_set(&mem->refcnt, 1);
 	mem->move_charge_at_immigrate = 0;
 	mutex_init(&mem->thresholds_lock);

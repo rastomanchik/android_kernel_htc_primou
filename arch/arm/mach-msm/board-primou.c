@@ -113,6 +113,7 @@
 
 #ifdef CONFIG_ION_MSM
 #include <linux/msm_ion.h>
+#include <mach/ion.h>
 #endif
 
 #ifdef CONFIG_SERIAL_BCM_BT_LPM
@@ -953,12 +954,11 @@ static int Primou_s5k4e5yx_vreg_off(void)
 }
 #endif
 
-static int config_camera_on_gpios(void)
+static void config_camera_on_gpios(void)
 {
 	pr_info("[CAM] config_camera_on_gpios\n");
 	config_gpio_table(camera_on_gpio_table,
 		ARRAY_SIZE(camera_on_gpio_table));
-	return 0;
 }
 
 static void config_camera_off_gpios(void)
@@ -2260,11 +2260,6 @@ struct platform_device msm_aictl_device = {
 	.resource = msm_aictl_resources,
 };
 
-struct platform_device htc_drm = {
-	.name = "htcdrm",
-	.id = 0,
-};
-
 struct platform_device msm_mi2s_device = {
 	.name = "mi2s",
 	.id   = 0,
@@ -3211,7 +3206,6 @@ static struct platform_device *devices[] __initdata = {
 #endif
         &pm8058_leds,
         &htc_headset_mgr,
-        &htc_drm,
 };
 
 static struct msm_gpio msm_i2c_gpios_hw[] = {

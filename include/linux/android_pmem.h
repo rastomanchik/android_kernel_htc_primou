@@ -136,8 +136,15 @@ int32_t pmem_kfree(const int32_t physaddr);
 struct android_pmem_platform_data
 {
 	const char* name;
+	/* size of memory region */
 	unsigned long size;
+	/* start physical address of memory region
+	 * if start is 0 or negative value, use android default behavior.
+	 * otherwise, just assign it to pmem info base.
+	 * android will handle remaining remap things.
+	 */
 	unsigned long start;
+
 	enum pmem_allocator_type allocator_type;
 	/* treated as a 'hidden' variable in the board files. Can be
 	 * set, but default is the system init value of 0 which becomes a
@@ -171,7 +178,6 @@ struct android_pmem_platform_data
 	 * indicates that this region should be mapped/unmaped as needed
 	 */
 	int map_on_demand;
-  	int reusable;
 };
 
 int pmem_setup(struct android_pmem_platform_data *pdata,

@@ -19,7 +19,6 @@
 
 #include <linux/device.h>
 
-struct mdp_overlay;
 struct mddi_info;
 
 /* output interface format */
@@ -71,9 +70,9 @@ struct msm_panel_data {
 };
 
 struct mdp_reg {
-	uint32_t reg;
-	uint32_t val;
-	uint32_t mask;
+    uint32_t reg;
+    uint32_t val;
+    uint32_t mask;
 };
 
 struct msm_mddi_client_data {
@@ -207,24 +206,5 @@ extern int msmfb_get_var(struct msm_fb_info *tmp);
 extern int msmfb_get_fb_area(void);
 #endif
 
-/*
- * This is used to communicate event between msm_fb, mddi, mddi_client,
- * and board.
- * It's mainly used to reset the display system.
- * Also, it is used for battery power policy.
- *
- */
-#define NOTIFY_MDDI     0x00000000
-#define NOTIFY_POWER    0x00000001
-#define NOTIFY_MSM_FB   0x00000010
-
-extern int register_display_notifier(struct notifier_block *nb);
-extern int display_notifier_call_chain(unsigned long val, void *data);
-
-#define display_notifier(fn, pri) {                     \
-	static struct notifier_block fn##_nb =          \
-	{ .notifier_call = fn, .priority = pri };       \
-	register_display_notifier(&fn##_nb);		\
-}
 
 #endif

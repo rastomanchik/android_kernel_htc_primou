@@ -437,7 +437,8 @@ struct kgsl_cff_syncmem {
 
 /*
  * A timestamp event allows the user space to register an action following an
- * expired timestamp.
+ * expired timestamp. Note IOCTL_KGSL_TIMESTAMP_EVENT has been redefined to
+ * _IOWR to support fences which need to return a fd for the priv parameter.
  */
 
 struct kgsl_timestamp_event {

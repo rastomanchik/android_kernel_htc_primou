@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2012, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2010-2012, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -66,7 +66,7 @@ struct vcd_frame_data {
 	u32 alloc_len;
 	u32 data_len;
 	u32 offset;
-	s64 time_stamp;
+	s64 time_stamp; /* in usecs*/
 	u32 flags;
 	u32 frm_clnt_data;
 	struct vcd_property_dec_output_buffer dec_op_prop;
@@ -76,10 +76,8 @@ struct vcd_frame_data {
 	u32 intrlcd_ip_frm_tag;
 	u8 *desc_buf;
 	u32 desc_size;
- 	struct ion_handle *buff_ion_handle;
+	struct ion_handle *buff_ion_handle;
 	struct vcd_aspect_ratio aspect_ratio_info;
-	u32 metadata_len;
-	u32 metadata_offset;
 };
 
 struct vcd_sequence_hdr {

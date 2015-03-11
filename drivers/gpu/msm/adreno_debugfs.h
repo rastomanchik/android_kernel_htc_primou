@@ -26,7 +26,6 @@ static inline int kgsl_pmregs_enabled(void)
 }
 
 #else
-
 static inline int adreno_debugfs_init(struct kgsl_device *device)
 {
 	return 0;
