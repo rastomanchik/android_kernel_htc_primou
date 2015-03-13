@@ -643,7 +643,7 @@ static int audio_open(struct inode *inode, struct file *file)
 	audio->dec_id = HOSTPCM_STREAM_ID;
 
 	audio->out_buffer_size = BUFSZ;
-	audio->out_sample_rate = 48000;
+	audio->out_sample_rate = 44100;
 	audio->out_channel_mode = AUDPP_CMD_PCM_INTF_STEREO_V;
 	audio->out_weight = 100;
 
