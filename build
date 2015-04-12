@@ -8,7 +8,7 @@ export ARCH=arm
 export CROSS_COMPILE=~/android_cm11/prebuilt/linux-x86/toolchain/linaro-4.9-cortex-a8/bin/arm-eabi-
 export EABI_PATCH=~/android_cm11/prebuilt/linux-x86/toolchain/linaro-4.9-cortex-a8/bin
 export KERNELRELEASE=3.0.101
-make clean && make mrproper
+#make clean && make mrproper
 
 echo "****Сборка ядра****"
 make primou_defconfig
